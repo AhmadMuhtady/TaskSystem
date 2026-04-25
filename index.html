@@ -1,0 +1,475 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+		<title>TaskSystem</title>
+
+		<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+			rel="stylesheet"
+		/>
+		<script id="tailwind-config">
+			tailwind.config = {
+				darkMode: 'class',
+				theme: {
+					extend: {
+						colors: {
+							'on-surface': '#e1e2ec',
+							'secondary-fixed-dim': '#b4c5ff',
+							'surface-tint': '#adc6ff',
+							'on-primary-fixed-variant': '#004395',
+							'outline-variant': '#424754',
+							outline: '#8c909f',
+							tertiary: '#ffb786',
+							'secondary-fixed': '#dbe1ff',
+							'primary-fixed-dim': '#adc6ff',
+							'on-primary-fixed': '#001a42',
+							primary: '#adc6ff',
+							'surface-container-highest': '#32353c',
+							'primary-container': '#4d8eff',
+							'secondary-container': '#0053db',
+							'primary-fixed': '#d8e2ff',
+							'surface-bright': '#363941',
+							'tertiary-fixed-dim': '#ffb786',
+							'on-primary-container': '#00285d',
+							'on-error-container': '#ffdad6',
+							'error-container': '#93000a',
+							surface: '#10131a',
+							'surface-dim': '#10131a',
+							'surface-container-lowest': '#0b0e15',
+							'tertiary-fixed': '#ffdcc6',
+							'on-secondary-container': '#cdd7ff',
+							background: '#10131a',
+							'on-secondary': '#002a78',
+							'tertiary-container': '#df7412',
+							'surface-variant': '#32353c',
+							error: '#ffb4ab',
+							'on-secondary-fixed-variant': '#003ea8',
+							'on-tertiary-container': '#461f00',
+							'surface-container': '#1d2027',
+							secondary: '#b4c5ff',
+							'inverse-primary': '#005ac2',
+							'inverse-on-surface': '#2e3038',
+							'on-background': '#e1e2ec',
+							'on-tertiary-fixed-variant': '#723600',
+							'on-primary': '#002e6a',
+							'on-error': '#690005',
+							'inverse-surface': '#e1e2ec',
+							'on-secondary-fixed': '#00174b',
+							'surface-container-low': '#191b23',
+							'on-tertiary-fixed': '#311400',
+							'on-surface-variant': '#c2c6d6',
+							'surface-container-high': '#272a31',
+							'on-tertiary': '#502400',
+						},
+						borderRadius: {
+							DEFAULT: '0.25rem',
+							lg: '0.5rem',
+							xl: '0.75rem',
+							full: '9999px',
+						},
+						spacing: {
+							sidebar_width: '240px',
+							lg: '24px',
+							base: '8px',
+							sm: '12px',
+							md: '16px',
+							xs: '4px',
+							xl: '32px',
+							gutter: '16px',
+						},
+						fontFamily: {
+							h2: ['Inter'],
+							'body-base': ['Inter'],
+							h1: ['Inter'],
+							button: ['Inter'],
+							'body-sm': ['Inter'],
+							'label-caps': ['Inter'],
+						},
+						fontSize: {
+							h2: [
+								'20px',
+								{
+									lineHeight: '28px',
+									letterSpacing: '-0.01em',
+									fontWeight: '600',
+								},
+							],
+							'body-base': [
+								'14px',
+								{ lineHeight: '20px', letterSpacing: '0', fontWeight: '400' },
+							],
+							h1: [
+								'24px',
+								{
+									lineHeight: '32px',
+									letterSpacing: '-0.02em',
+									fontWeight: '600',
+								},
+							],
+							button: [
+								'14px',
+								{
+									lineHeight: '20px',
+									letterSpacing: '-0.01em',
+									fontWeight: '500',
+								},
+							],
+							'body-sm': [
+								'13px',
+								{ lineHeight: '18px', letterSpacing: '0', fontWeight: '400' },
+							],
+							'label-caps': [
+								'11px',
+								{
+									lineHeight: '16px',
+									letterSpacing: '0.05em',
+									fontWeight: '600',
+								},
+							],
+						},
+					},
+				},
+			};
+		</script>
+		<style>
+			.glass {
+				background: rgba(30, 41, 59, 0.7);
+				backdrop-filter: blur(12px);
+				border: 1px solid rgba(255, 255, 255, 0.06);
+			}
+			.task-card-hover:hover {
+				border-color: rgba(255, 255, 255, 0.12);
+				transform: translateY(-2px);
+			}
+			.custom-scrollbar::-webkit-scrollbar {
+				width: 4px;
+			}
+			.custom-scrollbar::-webkit-scrollbar-track {
+				background: transparent;
+			}
+			.custom-scrollbar::-webkit-scrollbar-thumb {
+				background: #32353c;
+				border-radius: 10px;
+			}
+		</style>
+	</head>
+	<body
+		class="bg-surface font-body-base text-on-surface min-h-screen overflow-hidden"
+	>
+		<!-- Main Content Canvas -->
+		<main class="0 h-screen flex flex-col">
+			<!-- TopNavBar -->
+			<header
+				class="sticky top-0 z-40 flex items-center justify-between px-6 w-full h-16 border-b border-white/10 bg-slate-900/80 backdrop-blur-md"
+			>
+				<div class="flex items-center">
+					<span
+						class="material-symbols-outlined text-[20px]"
+						data-icon="dashboard"
+						>dashboard</span
+					>
+					<h1 class="text-xl font-bold text-white tracking-tight leading-none">
+						TaskSystem
+					</h1>
+				</div>
+				<div>
+					<div class="relative max-w-md w-full">
+						<span
+							class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl"
+							data-icon="search"
+							>search</span
+						>
+						<input
+							id="search-input"
+							class="w-full bg-slate-800/50 border-none rounded-lg py-2 pl-10 pr-4 text-sm text-on-surface placeholder:text-slate-500 focus:ring-1 focus:ring-primary"
+							placeholder="Search tasks..."
+							type="text"
+						/>
+					</div>
+				</div>
+				<div id="settings" class="flex items-center gap-2">
+					<button
+						class="text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 px-3 py-2.5 rounded-sm flex items-center gap-3 cursor-pointer transition-all"
+					>
+						<span
+							class="material-symbols-outlined text-[20px]"
+							data-icon="settings"
+							>settings</span
+						>
+					</button>
+					<button
+						class="p-2 text-slate-400 hover:bg-slate-800/50 rounded-lg transition-colors"
+					>
+						<span class="material-symbols-outlined" data-icon="info"
+							>help_outline</span
+						>
+					</button>
+				</div>
+			</header>
+			<!-- Scrollable Canvas -->
+			<div class="flex-1 overflow-y-auto custom-scrollbar p-lg">
+				<div class="max-w-[1200px] mx-auto space-y-xl">
+					<!-- Dashboard Header -->
+					<div
+						class="flex flex-col md:flex-row md:items-end justify-between gap-md"
+					>
+						<div>
+							<h2 class="font-h1 text-h1 text-on-surface mb-xs">Tasks</h2>
+							<p class="text-body-base text-outline">
+								Quickly manage your daily agenda.
+							</p>
+						</div>
+						<div class="flex items-center gap-sm">
+							<div
+								id="view"
+								class="flex bg-surface-container rounded-lg p-1 border border-outline-variant"
+							>
+								<button
+									data-view="grid"
+									class="px-3 py-1.5 bg-slate-800 text-primary rounded-md text-body-sm font-medium flex items-center gap-2"
+								>
+									<span
+										class="material-symbols-outlined text-sm"
+										data-icon="grid_view"
+										>grid_view</span
+									>
+									Grid
+								</button>
+								<button
+									data-view="list"
+									class="px-3 py-1.5 text-outline hover:text-on-surface rounded-md text-body-sm font-medium flex items-center gap-2"
+								>
+									<span
+										class="material-symbols-outlined text-sm"
+										data-icon="list"
+										>list</span
+									>
+									List
+								</button>
+							</div>
+						</div>
+					</div>
+					<!-- Search, Filter & Sort Section -->
+					<div class="glass rounded-xl p-md flex flex-wrap items-center gap-md">
+						<div class="flex-1 min-w-[200px] relative">
+							<span
+								class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg"
+								data-icon="filter_list"
+								>filter_list</span
+							>
+							<select
+								id="type-filter"
+								class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-primary focus:border-primary appearance-none"
+							>
+								<option value="all">🌐 All Types</option>
+								<option value="work">🏢 Work</option>
+								<option value="home">🏠 home</option>
+								<option value="ideas">💡 ides</option>
+							</select>
+						</div>
+						<div class="flex-1 min-w-[200px] relative">
+							<span
+								class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg"
+								data-icon="filter_list"
+								>filter_list</span
+							>
+							<select
+								id="status-filter"
+								class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-primary focus:border-primary appearance-none"
+							>
+								<option value="all">🌐 All Status</option>
+								<option value="pending">⚒️ In Progress</option>
+								<option value="Completed">✔️ Completed</option>
+							</select>
+						</div>
+						<div class="flex-1 min-w-[200px] relative">
+							<span
+								class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg"
+								data-icon="sort"
+								>sort</span
+							>
+							<select
+								id="sort"
+								class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-primary focus:border-primary appearance-none"
+							>
+								<option value="all">🌐 Sort All</option>
+								<option value="newest">Date: Newest</option>
+								<option value="oldest">Date: Oldest</option>
+								<option value="asc">Priority: Low to High</option>
+								<option value="desc">Priority: High to Lpw</option>
+							</select>
+						</div>
+						<button
+							id="add-task"
+							class="px-lg h-10 bg-primary text-on-primary font-button rounded-lg flex items-center gap-2 hover:brightness-110 transition-all"
+						>
+							<span class="material-symbols-outlined text-lg" id="add"
+								>add</span
+							>
+							New Task
+						</button>
+					</div>
+					<!-- Quick Add Form -->
+					<section class="glass rounded-xl p-lg overflow-hidden relative">
+						<h3 class="font-h2 text-h2 mb-md">Quick Entry</h3>
+						<form class="grid grid-cols-1 md:grid-cols-4 gap-md">
+							<div class="md:col-span-2 space-y-xs">
+								<label class="text-label-caps uppercase text-outline px-1"
+									>Task Title</label
+								>
+								<input
+									id="title-input"
+									class="w-full bg-surface-container-highest/30 border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+									placeholder="What needs to be done?"
+									type="text"
+								/>
+							</div>
+							<div class="space-y-xs">
+								<label class="text-label-caps uppercase text-outline px-1"
+									>Due Date</label
+								>
+								<input
+									id="date-input"
+									class="w-full bg-surface-container-highest/30 border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+									type="date"
+								/>
+							</div>
+							<div class="space-y-xs">
+								<label class="text-label-caps uppercase text-outline px-1"
+									>Priority</label
+								>
+								<select
+									id="Priority-input"
+									class="w-full bg-surface-container-highest/30 border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+								>
+									<option value="medium">🟠 Medium</option>
+									<option value="high">🔴 High</option>
+									<option value="low">🟢 Low</option>
+								</select>
+							</div>
+							<div class="space-y-xs">
+								<label class="text-label-caps uppercase text-outline px-1"
+									>Type</label
+								>
+								<select
+									id="type-input"
+									class="w-full bg-surface-container-highest/30 border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+								>
+									<option value="work">🏢 Work</option>
+									<option value="home">🏠 home</option>
+									<option value="ideas">💡 ides</option>
+								</select>
+							</div>
+							<div class="md:col-span-3 space-y-xs">
+								<label class="text-label-caps uppercase text-outline px-1"
+									>Notes</label
+								>
+								<textarea
+									id="description-input"
+									class="w-full bg-surface-container-highest/30 border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary outline-none resize-none"
+									placeholder="Add additional context..."
+									rows="1"
+								></textarea>
+							</div>
+							<div class="flex items-end">
+								<button class="hidden">Create Task</button>
+							</div>
+						</form>
+					</section>
+					<!-- Task Grid -->
+					<div
+						id="tasks-container"
+						class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg"
+					>
+						<!-- Task Card 2 -->
+						<div
+							id="task"
+							class="glass rounded-xl p-md flex flex-col gap-md task-card-hover transition-all duration-300"
+						>
+							<div class="flex items-start justify-between">
+								<span
+									class="px-2 py-0.5 bg-tertiary-container/20 text-tertiary text-[10px] font-bold uppercase tracking-wider rounded border border-tertiary/20"
+									>Medium Priority</span
+								>
+								<div class="flex items-center gap-1 text-outline">
+									<span
+										class="material-symbols-outlined text-sm"
+										data-icon="calendar_month"
+										>calendar_month</span
+									>
+									<span class="text-body-sm">Oct 26</span>
+								</div>
+							</div>
+							<div>
+								<h4
+									class="font-h2 text-body-base font-semibold text-on-surface mb-xs"
+								>
+									UI Component Documentation
+								</h4>
+								<p class="text-body-sm text-outline-variant line-clamp-2">
+									Update the Storybook documentation for the new design tokens.
+								</p>
+							</div>
+							<div
+								id="task-btn--control"
+								class="mt-auto pt-md border-t border-white/5 flex items-center justify-between"
+							>
+								<div class="flex items-center gap-3">
+									<input
+										data-btn="completion"
+										checked=""
+										class="w-5 h-5 rounded border-outline-variant bg-surface-container text-primary focus:ring-primary/50 cursor-pointer"
+										type="checkbox"
+									/>
+									<span class="text-body-sm font-medium text-primary"
+										>Completed</span
+									>
+								</div>
+								<div class="flex items-center gap-1">
+									<button
+										data-btn="edit"
+										class="p-1.5 hover:bg-slate-800 rounded transition-colors text-outline hover:text-primary"
+									>
+										<span
+											class="material-symbols-outlined text-lg"
+											data-icon="edit"
+											>edit</span
+										>
+									</button>
+									<button
+										data-btn="delete"
+										class="p-1.5 hover:bg-slate-800 rounded transition-colors text-outline hover:text-error"
+									>
+										<span
+											class="material-symbols-outlined text-lg"
+											data-icon="delete"
+											>delete</span
+										>
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+		<!-- Floating Action for Mobile -->
+		<button
+			class="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center active:scale-95"
+		>
+			<span class="material-symbols-outlined text-2xl" data-icon="add"
+				>add</span
+			>
+		</button>
+
+		<script type="module" src="src/App.js"></script>
+	</body>
+</html>
