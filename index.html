@@ -161,9 +161,7 @@
 			}
 		</style>
 	</head>
-	<body
-		class="bg-surface font-body-base text-on-surface min-h-screen overflow-hidden"
-	>
+	<body class="bg-[#0069CC] text-white dark:bg-surface dark:text-on-surface">
 		<!-- Main Content Canvas -->
 		<main class="0 h-screen flex flex-col">
 			<!-- TopNavBar -->
@@ -195,17 +193,17 @@
 						/>
 					</div>
 				</div>
-				<div id="settings" class="flex items-center gap-2">
+				<div class="flex items-center gap-2">
 					<button
+						id="theme-btn"
 						class="text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 px-3 py-2.5 rounded-sm flex items-center gap-3 cursor-pointer transition-all"
 					>
-						<span
-							class="material-symbols-outlined text-[20px]"
-							data-icon="settings"
-							>settings</span
+						<span class="material-symbols-outlined text-[20px]"
+							>light_mode</span
 						>
 					</button>
 					<button
+						id="info-btn"
 						class="p-2 text-slate-400 hover:bg-slate-800/50 rounded-lg transition-colors"
 					>
 						<span class="material-symbols-outlined" data-icon="info"
@@ -223,7 +221,7 @@
 					>
 						<div>
 							<h2 class="font-h1 text-h1 text-on-surface mb-xs">Tasks</h2>
-							<p class="text-body-base text-outline">
+							<p class="text-body-base text-white">
 								Quickly manage your daily agenda.
 							</p>
 						</div>
@@ -287,7 +285,7 @@
 							>
 								<option value="all">🌐 All Status</option>
 								<option value="pending">⚒️ In Progress</option>
-								<option value="Completed">✔️ Completed</option>
+								<option value="completed">✔️ Completed</option>
 							</select>
 						</div>
 						<div class="flex-1 min-w-[200px] relative">
@@ -308,7 +306,7 @@
 							</select>
 						</div>
 						<button
-							id="add-task"
+							id="add-task-btn"
 							class="px-lg h-10 bg-primary text-on-primary font-button rounded-lg flex items-center gap-2 hover:brightness-110 transition-all"
 						>
 							<span class="material-symbols-outlined text-lg" id="add"
@@ -320,7 +318,118 @@
 					<!-- Quick Add Form -->
 					<section class="glass rounded-xl p-lg overflow-hidden relative">
 						<h3 class="font-h2 text-h2 mb-md">Quick Entry</h3>
-						<form class="grid grid-cols-1 md:grid-cols-4 gap-md">
+						<section
+							class="mb-10 p-6 rounded-xl bg-surface-container border border-white/5 shadow-lg"
+						>
+							<div class="flex flex-col md:flex-row items-center gap-10">
+								<!-- Circular Progress -->
+								<div class="flex flex-col items-center gap-3">
+									<div
+										class="relative w-32 h-32 flex items-center justify-center"
+									>
+										<!-- SVG Donut Chart -->
+										<svg class="w-full h-full -rotate-90" viewbox="0 0 36 36">
+											<path
+												class="stroke-surface-container-highest"
+												d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+												fill="none"
+												stroke-width="3"
+											></path>
+											<path
+												id="progress-ring"
+												class="stroke-primary-container"
+												d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+												fill="none"
+												stroke-dasharray="75, 100"
+												stroke-linecap="round"
+												stroke-width="3"
+											></path>
+										</svg>
+										<div class="absolute flex flex-col items-center">
+											<span
+												id="progress-percent"
+												class="text-h2 font-h2 text-slate-100"
+												>75%</span
+											>
+											<span
+												class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold"
+												>Done</span
+											>
+										</div>
+									</div>
+									<p class="text-body-sm font-body-sm text-slate-400">
+										Weekly Progress
+									</p>
+								</div>
+
+								<button
+									id="clear-tasks-btn"
+									class="px-lg h-10 bg-red-600 text-white font-button rounded-lg flex items-center gap-2 hover:bg-red-700 hover:brightness-105 transition-all"
+								>
+									<span
+										class="material-symbols-outlined text-lg"
+										data-icon="delete"
+									>
+										delete
+									</span>
+									Clear Tasks
+								</button>
+								<!-- Vertical Divider -->
+								<div class="hidden md:block w-[1px] h-20 bg-white/5"></div>
+								<!-- Stat Cards Bento -->
+								<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 flex-1">
+									<!-- Total Tasks -->
+									<div
+										class="flex items-center justify-center rounded-lg bg-surface-container-low border border-white/5 flex flex-col gap-1"
+									>
+										<span class="text-body-sm font-body-sm text-slate-400"
+											>Total Tasks</span
+										>
+										<div class="flex items-center gap-2">
+											<span
+												id="stat-total"
+												class="text-h1 font-h1 text-slate-100"
+												>24</span
+											>
+										</div>
+									</div>
+									<!-- Completed -->
+									<div
+										class="flex items-center justify-center p-4 rounded-lg bg-surface-container-low border border-white/5 flex flex-col gap-1"
+									>
+										<span class="text-body-sm font-body-sm text-slate-400"
+											>Completed</span
+										>
+										<div class="flex items-end gap-2">
+											<span
+												id="stat-completed"
+												class="text-h1 font-h1 text-green-400"
+												>18</span
+											>
+										</div>
+									</div>
+									<!-- Pending -->
+									<div
+										class="flex items-center justify-center p-4 rounded-lg bg-surface-container-low border border-white/5 flex flex-col gap-1"
+									>
+										<span class="text-body-sm font-body-sm text-slate-400"
+											>Pending</span
+										>
+										<div class="flex items-end gap-2">
+											<span
+												id="stat-pending"
+												class="text-h1 font-h1 text-orange-400"
+												>6</span
+											>
+										</div>
+									</div>
+								</div>
+							</div>
+						</section>
+						<form
+							id="task-form"
+							class="hidden grid grid-cols-1 md:grid-cols-4 gap-md"
+						>
 							<div class="md:col-span-2 space-y-xs">
 								<label class="text-label-caps uppercase text-outline px-1"
 									>Task Title</label
@@ -347,7 +456,7 @@
 									>Priority</label
 								>
 								<select
-									id="Priority-input"
+									id="priority-input"
 									class="w-full bg-surface-container-highest/30 border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
 								>
 									<option value="medium">🟠 Medium</option>
@@ -379,8 +488,13 @@
 									rows="1"
 								></textarea>
 							</div>
-							<div class="flex items-end">
-								<button class="hidden">Create Task</button>
+							<div class="space-y-xs">
+								<button
+									id="create-task"
+									class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-md rounded-lg p-2.5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-95 focus:ring-2 focus:ring-green-400 focus:ring-offset-2"
+								>
+									Create Task
+								</button>
 							</div>
 						</form>
 					</section>
@@ -388,76 +502,7 @@
 					<div
 						id="tasks-container"
 						class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg"
-					>
-						<!-- Task Card 2 -->
-						<div
-							id="task"
-							class="glass rounded-xl p-md flex flex-col gap-md task-card-hover transition-all duration-300"
-						>
-							<div class="flex items-start justify-between">
-								<span
-									class="px-2 py-0.5 bg-tertiary-container/20 text-tertiary text-[10px] font-bold uppercase tracking-wider rounded border border-tertiary/20"
-									>Medium Priority</span
-								>
-								<div class="flex items-center gap-1 text-outline">
-									<span
-										class="material-symbols-outlined text-sm"
-										data-icon="calendar_month"
-										>calendar_month</span
-									>
-									<span class="text-body-sm">Oct 26</span>
-								</div>
-							</div>
-							<div>
-								<h4
-									class="font-h2 text-body-base font-semibold text-on-surface mb-xs"
-								>
-									UI Component Documentation
-								</h4>
-								<p class="text-body-sm text-outline-variant line-clamp-2">
-									Update the Storybook documentation for the new design tokens.
-								</p>
-							</div>
-							<div
-								id="task-btn--control"
-								class="mt-auto pt-md border-t border-white/5 flex items-center justify-between"
-							>
-								<div class="flex items-center gap-3">
-									<input
-										data-btn="completion"
-										checked=""
-										class="w-5 h-5 rounded border-outline-variant bg-surface-container text-primary focus:ring-primary/50 cursor-pointer"
-										type="checkbox"
-									/>
-									<span class="text-body-sm font-medium text-primary"
-										>Completed</span
-									>
-								</div>
-								<div class="flex items-center gap-1">
-									<button
-										data-btn="edit"
-										class="p-1.5 hover:bg-slate-800 rounded transition-colors text-outline hover:text-primary"
-									>
-										<span
-											class="material-symbols-outlined text-lg"
-											data-icon="edit"
-											>edit</span
-										>
-									</button>
-									<button
-										data-btn="delete"
-										class="p-1.5 hover:bg-slate-800 rounded transition-colors text-outline hover:text-error"
-									>
-										<span
-											class="material-symbols-outlined text-lg"
-											data-icon="delete"
-											>delete</span
-										>
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
+					></div>
 				</div>
 			</div>
 		</main>
@@ -470,6 +515,157 @@
 			>
 		</button>
 
+		<div
+			id="info-modal"
+			class="hidden fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50"
+		>
+			<div
+				id="info-modal-card"
+				class="relative bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-2xl max-w-lg w-full mx-4 border border-white/10 shadow-2xl overflow-hidden"
+			>
+				<!-- Close Button -->
+				<button
+					id="closeInfo"
+					class="absolute top-4 right-4 text-on-surface/40 hover:text-on-surface transition-all"
+				>
+					<span class="material-symbols-outlined">close</span>
+				</button>
+
+				<!-- Header -->
+				<div class="mb-6">
+					<div class="flex items-center gap-3 mb-1">
+						<span
+							class="material-symbols-outlined text-[20px]"
+							data-icon="dashboard"
+							>dashboard</span
+						>
+						<h2 class="text-2xl font-black text-on-surface tracking-tight">
+							TaskSystem Info
+						</h2>
+					</div>
+					<p class="text-sm text-on-surface/50 font-medium">
+						System Architecture & Capabilities
+					</p>
+				</div>
+
+				<!-- Scrollable Content -->
+				<div
+					class="space-y-6 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar"
+				>
+					<!-- 1. Core Features -->
+					<div>
+						<h3
+							class="text-[10px] font-bold text-primary uppercase mb-3 tracking-[0.2em]"
+						>
+							Operational Features
+						</h3>
+						<ul class="space-y-3 text-sm text-on-surface/70">
+							<li class="flex items-center gap-3">
+								<span class="material-symbols-outlined text-sky-400 text-lg"
+									>list_alt</span
+								>
+								Dynamic Task Lifecycle Management
+							</li>
+							<li class="flex items-center gap-3">
+								<span class="material-symbols-outlined text-emerald-400 text-lg"
+									>monitoring</span
+								>
+								Real-time Progress Analytics
+							</li>
+							<li class="flex items-center gap-3">
+								<span class="material-symbols-outlined text-purple-400 text-lg"
+									>filter_list</span
+								>
+								Advanced Type & Status Filtering
+							</li>
+							<li class="flex items-center gap-3">
+								<span class="material-symbols-outlined text-amber-400 text-lg"
+									>bolt</span
+								>
+								Instant Persistence via LocalStorage
+							</li>
+						</ul>
+					</div>
+
+					<!-- 2. System Architecture (Your exact File Tree) -->
+					<div>
+						<h3
+							class="text-[10px] font-bold text-indigo-400 uppercase mb-3 tracking-[0.2em]"
+						>
+							System Core (OOP)
+						</h3>
+						<div class="grid grid-cols-2 gap-2">
+							<div
+								class="bg-white/5 border border-white/5 p-3 rounded-lg flex flex-col items-center"
+							>
+								<span class="text-xs font-bold text-on-surface"
+									>TaskManager</span
+								>
+								<span class="text-[9px] text-on-surface/40 uppercase"
+									>Logic Engine</span
+								>
+							</div>
+							<div
+								class="bg-white/5 border border-white/5 p-3 rounded-lg flex flex-col items-center"
+							>
+								<span class="text-xs font-bold text-on-surface"
+									>StorageManager</span
+								>
+								<span class="text-[9px] text-on-surface/40 uppercase"
+									>Data Handler</span
+								>
+							</div>
+							<div
+								class="bg-white/5 border border-white/5 p-3 rounded-lg flex flex-col items-center"
+							>
+								<span class="text-xs font-bold text-on-surface">UIManager</span>
+								<span class="text-[9px] text-on-surface/40 uppercase"
+									>DOM Interface</span
+								>
+							</div>
+							<div
+								class="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-lg flex flex-col items-center"
+							>
+								<span class="text-xs font-bold text-indigo-300 font-mono"
+									>EventBus</span
+								>
+								<span class="text-[9px] text-indigo-400/60 uppercase"
+									>Comm Link</span
+								>
+							</div>
+						</div>
+					</div>
+
+					<!-- 3. Tech Stack -->
+					<div>
+						<h3
+							class="text-[10px] font-bold text-emerald-400 uppercase mb-3 tracking-[0.2em]"
+						>
+							Frameworkless Stack
+						</h3>
+						<div class="flex flex-wrap gap-2">
+							<span
+								class="px-3 py-1 bg-white/5 text-[10px] text-on-surface/80 rounded-full border border-white/10 italic"
+								>ES6+ Modules</span
+							>
+							<span
+								class="px-3 py-1 bg-white/5 text-[10px] text-on-surface/80 rounded-full border border-white/10"
+								>Tailwind CSS 3.4</span
+							>
+						</div>
+					</div>
+				</div>
+
+				<!-- Footer Info -->
+				<div class="mt-6 pt-4 border-t border-white/5">
+					<p
+						class="text-[10px] text-center text-on-surface/30 uppercase tracking-widest italic"
+					>
+						Version 1.0.0 // No external dependencies
+					</p>
+				</div>
+			</div>
+		</div>
 		<script type="module" src="src/App.js"></script>
 	</body>
 </html>
