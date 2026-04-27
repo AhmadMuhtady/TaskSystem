@@ -39,9 +39,11 @@ export class Task {
 	}
 
 	dateFormat(date) {
-		return date.toLocaleDateString('en-US', {
-			month: 'short',
-			day: 'numeric',
-		});
+		return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+	}
+	get formattedDate() {
+		if (!this.dueDate) return '';
+		const date = new Date(this.dueDate);
+		return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 	}
 }

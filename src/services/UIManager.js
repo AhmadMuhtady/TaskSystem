@@ -3,11 +3,14 @@ import { BusEvent } from '../core/EventBus.js';
 export class UIManager {
 	constructor() {
 		this.isModalOpen = false;
+		this.isClearModalOpen = false;
 		this.editingTaskId = null;
 		this._init();
 		this._applySavedTheme();
 		this._updateThemeIcon();
 		this._initListeners();
+
+		this._startMidnightRefresh();
 	}
 
 	_init() {
@@ -26,6 +29,13 @@ export class UIManager {
 		this.modalCard = document.getElementById('info-modal-card');
 		this.closeModalBtn = document.getElementById('closeInfo');
 
+		this.clearModal = document.getElementById('confirm-clear-modal');
+		this.clearModalCard = document.getElementById('confirm-clear-modal-card');
+		this.closeClearModalBtns = document.querySelectorAll(
+			'.close-confirm-clear',
+		);
+		this.showClearModalBtn = document.getElementById('show-clear-modal');
+
 		this.tasksContainer = document.getElementById('tasks-container');
 		this.addTaskBtn = document.getElementById('add-task-btn');
 		this.clearTaskBtn = document.getElementById('clear-tasks-btn');
@@ -43,6 +53,8 @@ export class UIManager {
 		this.priorityInput = document.getElementById('priority-input');
 		this.typeInput = document.getElementById('type-input');
 		this.descriptionInput = document.getElementById('description-input');
+
+		this.bottomMessage = document.getElementById('bottom-message');
 	}
 
 	_initListeners() {
@@ -50,7 +62,10 @@ export class UIManager {
 		this.themeBtn.addEventListener('click', this._toggleTheme.bind(this));
 		this.infoBtn.addEventListener('click', this._showModal.bind(this));
 		this.closeModalBtn.addEventListener('click', this._hideModal.bind(this));
-		this.clearTaskBtn.addEventListener('click', this._reset.bind(this));
+		this.clearTaskBtn.addEventListener('click', () => {
+			this._reset();
+			this._ToggleClearModal();
+		});
 		document.addEventListener('click', (e) => this._handleClickOutside(e));
 		this.viewContainer.addEventListener('click', (e) => this._toggleView(e));
 		this.typeFilterBtn.addEventListener('change', this._emitFilters.bind(this));
@@ -60,6 +75,14 @@ export class UIManager {
 		);
 		this.sortBtn.addEventListener('change', this._emitFilters.bind(this));
 		this.searchBar.addEventListener('input', this._emitFilters.bind(this));
+
+		this.showClearModalBtn.addEventListener(
+			'click',
+			this._ToggleClearModal.bind(this),
+		);
+		this.closeClearModalBtns.forEach((b) => {
+			b.addEventListener('click', this._ToggleClearModal.bind(this));
+		});
 
 		this.form.addEventListener('submit', (e) => {
 			e.preventDefault();
@@ -89,6 +112,9 @@ export class UIManager {
 		BusEvent.on('task:editForm', (task) => this._editTask(task));
 		BusEvent.on('stats:updated', (tasks) => this.updateStats(tasks));
 		this._emitFilters();
+		BusEvent.on('task:statusUpdated', ({ id, status }) =>
+			this._updateTaskCard(id, status),
+		);
 	}
 
 	_getFormData() {
@@ -134,7 +160,7 @@ export class UIManager {
 
 	_renderTask(task) {
 		const taskHtml = `
-    <div data-id="${task.id}" class="task glass rounded-xl p-md flex flex-col gap-md task-card-hover transition-all duration-300 border-r-4 ${task.priorityBorder}">
+    <div data-id="${task.id}" data-date="${task.dueDate}" class="task glass rounded-xl p-md flex flex-col gap-md task-card-hover transition-all duration-300 border-r-4 ${task.priorityBorder}">
     <div class="flex items-start justify-between">
         <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded border ${task.priorityStyles}">
             ${task.priority}
@@ -142,9 +168,12 @@ export class UIManager {
         <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded border border-outline/20">
             ${task.type}
         </span>
+
+				 <span data-late-badge class="hidden px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded border border-red-500/20 bg-red-500/10 text-red-600">	
+    </span>
         <div class="flex items-center gap-1 text-outline">
             <span class="material-symbols-outlined text-sm">calendar_month</span>
-            <span class="text-body-sm">${task.dueDate}</span>
+            <span class="text-body-sm">${task.formattedDate}</span>
         </div>
     </div>
 
@@ -152,7 +181,7 @@ export class UIManager {
         <h4 class="font-h2 text-body-base font-semibold text-on-surface mb-xs">
             ${task.title}
         </h4>
-        <p class="text-body-sm text-on-surface-variant line-clamp-2">
+        <p class="description text-body-sm text-on-surface-variant line-clamp-2">
             ${task.description}
         </p>
     </div>
@@ -194,13 +223,20 @@ export class UIManager {
 			.addEventListener('change', () => {
 				BusEvent.emit('task:toggleComplete', task.id);
 			});
+
+		this._updateTaskCard(task.id, task.status);
 	}
 
 	_rerenderAll(tasks) {
 		const taskEl = document.querySelectorAll('.task');
 		taskEl.forEach((el) => el.remove());
 
-		tasks.forEach((task) => this._renderTask(task));
+		if (tasks.length > 0) {
+			tasks.forEach((task) => this._renderTask(task));
+			this.bottomMessage.classList.add('hidden');
+		} else {
+			this.bottomMessage.classList.remove('hidden');
+		}
 	}
 
 	_removeTask(id) {
@@ -245,6 +281,12 @@ export class UIManager {
 		this.isModalOpen = false;
 	}
 
+	_ToggleClearModal() {
+		this.clearModal.classList.toggle('hidden');
+
+		this.isClearModalOpen = !this.isClearModalOpen;
+	}
+
 	_handleClickOutside(e) {
 		const clickedModalCard = document
 			.getElementById('info-modal-card')
@@ -253,6 +295,19 @@ export class UIManager {
 
 		if (this.isModalOpen && !clickedModalCard && !clickedModalBtn) {
 			this._hideModal();
+		}
+
+		const clickedClearModalCard = document
+			.getElementById('confirm-clear-modal-card')
+			.contains(e.target);
+		const clickedClearModalBtn = this.showClearModalBtn.contains(e.target);
+
+		if (
+			this.isClearModalOpen &&
+			!clickedClearModalCard &&
+			!clickedClearModalBtn
+		) {
+			this._ToggleClearModal();
 		}
 	}
 
@@ -294,5 +349,116 @@ export class UIManager {
 			'stroke-dasharray',
 			`${tasks.percentage}, 100`,
 		);
+	}
+
+	_updateTaskCard(id, status) {
+		const card = this.tasksContainer.querySelector(`[data-id="${id}"]`);
+		if (!card) return;
+
+		const isCompleted = status === 'completed';
+
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+
+		const dueDate = new Date(card.dataset.date);
+		dueDate.setHours(0, 0, 0, 0);
+
+		const diffDays = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24)); // past
+		const daysLeft = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24)); // future
+		const isOverdue = !isCompleted && diffDays > 0;
+
+		const title = card.querySelector('h4');
+		const description = card.querySelector('p');
+		const checkbox = card.querySelector('[data-btn="completion"]');
+		const statusText = checkbox.nextElementSibling;
+		const lateBadge = card.querySelector('[data-late-badge]');
+
+		card.classList.toggle('opacity-60', isCompleted);
+		card.classList.toggle('grayscale-[0.5]', isCompleted);
+		title.classList.toggle('line-through', isCompleted);
+		description.classList.toggle('line-through', isCompleted);
+
+		card.classList.toggle('border-red-500', isOverdue);
+		card.classList.toggle('bg-red-50/10', isOverdue);
+		title.classList.toggle('text-red-700', isOverdue);
+
+		checkbox.checked = isCompleted;
+		statusText.textContent = status;
+		statusText.classList.toggle('text-green-600', isCompleted);
+		statusText.classList.toggle('text-primary', !isCompleted && !isOverdue);
+		statusText.classList.toggle('text-red-600', isOverdue);
+
+		lateBadge.classList.remove(
+			'hidden',
+			'border-red-500/20',
+			'bg-red-500/10',
+			'text-red-600',
+			'border-emerald-500/20',
+			'bg-emerald-500/10',
+			'text-emerald-600',
+			'border-amber-500/20',
+			'bg-amber-500/10',
+			'text-amber-600',
+		);
+
+		if (isCompleted) {
+			lateBadge.classList.add('hidden');
+		} else if (isOverdue) {
+			lateBadge.classList.add(
+				'border-red-500/20',
+				'bg-red-500/10',
+				'text-red-600',
+			);
+			lateBadge.textContent = `${diffDays}d late`;
+		} else if (daysLeft === 0) {
+			lateBadge.classList.add(
+				'border-amber-500/20',
+				'bg-amber-500/10',
+				'text-amber-600',
+			);
+			lateBadge.textContent = 'Due today';
+		} else if (daysLeft > 0) {
+			lateBadge.classList.add(
+				'border-emerald-500/20',
+				'bg-emerald-500/10',
+				'text-emerald-600',
+			);
+			lateBadge.textContent = `${daysLeft}d left`;
+		} else {
+			lateBadge.classList.add('hidden');
+		}
+	}
+
+	_startMidnightRefresh() {
+		const now = new Date();
+
+		const nextMidnight = new Date();
+		nextMidnight.setHours(24, 0, 0, 0);
+
+		const msUntilMidnight = nextMidnight - now;
+
+		setTimeout(() => {
+			this._refreshAllTasks();
+
+			setInterval(
+				() => {
+					this._refreshAllTasks();
+				},
+				24 * 60 * 60 * 1000,
+			);
+		}, msUntilMidnight);
+	}
+
+	_refreshAllTasks() {
+		const cards = this.tasksContainer.querySelectorAll('.task');
+
+		cards.forEach((card) => {
+			const id = card.dataset.id;
+
+			const checkbox = card.querySelector('[data-btn="completion"]');
+			const status = checkbox.checked ? 'completed' : 'pending';
+
+			this._updateTaskCard(id, status);
+		});
 	}
 }

@@ -9,9 +9,6 @@ class EventBus {
 		if (!this.storage[eventName].includes(callback)) {
 			this.storage[eventName].push(callback);
 		}
-
-		console.log(eventName, callback);
-		console.log(this.storage);
 	}
 
 	emit(eventName, data) {
@@ -22,9 +19,6 @@ class EventBus {
 		events.forEach((callback) => {
 			callback(data);
 		});
-
-		console.log(eventName, data);
-		console.log(this.storage);
 	}
 
 	off(eventName, callback) {
@@ -32,9 +26,6 @@ class EventBus {
 		if (!events) return;
 
 		this.storage[eventName] = events.filter((cb) => cb !== callback);
-
-		console.log(eventName, callback);
-		console.log(this.storage);
 	}
 }
 

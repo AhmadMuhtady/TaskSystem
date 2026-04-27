@@ -363,7 +363,7 @@
 								</div>
 
 								<button
-									id="clear-tasks-btn"
+									id="show-clear-modal"
 									class="px-lg h-10 bg-red-600 text-white font-button rounded-lg flex items-center gap-2 hover:bg-red-700 hover:brightness-105 transition-all"
 								>
 									<span
@@ -436,7 +436,7 @@
 								>
 								<input
 									id="title-input"
-									class="w-full bg-surface-container-highest/30 border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+									class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-primary focus:border-primary appearance-none"
 									placeholder="What needs to be done?"
 									type="text"
 								/>
@@ -447,7 +447,7 @@
 								>
 								<input
 									id="date-input"
-									class="w-full bg-surface-container-highest/30 border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+									class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-primary focus:border-primary appearance-none"
 									type="date"
 								/>
 							</div>
@@ -457,7 +457,7 @@
 								>
 								<select
 									id="priority-input"
-									class="w-full bg-surface-container-highest/30 border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+									class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-primary focus:border-primary appearance-none"
 								>
 									<option value="medium">🟠 Medium</option>
 									<option value="high">🔴 High</option>
@@ -470,7 +470,7 @@
 								>
 								<select
 									id="type-input"
-									class="w-full bg-surface-container-highest/30 border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+									class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-primary focus:border-primary appearance-none"
 								>
 									<option value="work">🏢 Work</option>
 									<option value="home">🏠 home</option>
@@ -483,7 +483,7 @@
 								>
 								<textarea
 									id="description-input"
-									class="w-full bg-surface-container-highest/30 border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary outline-none resize-none"
+									class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-primary focus:border-primary appearance-none"
 									placeholder="Add additional context..."
 									rows="1"
 								></textarea>
@@ -497,7 +497,14 @@
 								</button>
 							</div>
 						</form>
+						<div
+							id="bottom-message"
+							class="hidden flex items-center justify-center w-full"
+						>
+							<h3 class="text-gray-500">Lets Start Adding some Tasks...</h3>
+						</div>
 					</section>
+
 					<!-- Task Grid -->
 					<div
 						id="tasks-container"
@@ -663,6 +670,48 @@
 					>
 						Version 1.0.0 // No external dependencies
 					</p>
+				</div>
+			</div>
+		</div>
+
+		<div
+			id="confirm-clear-modal"
+			class="hidden fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50"
+		>
+			<div
+				id="confirm-clear-modal-card"
+				class="relative bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-2xl max-w-lg mx-4 border border-white/10 shadow-2xl overflow-hidden"
+			>
+				<!-- Close Button -->
+				<button
+					class="close-confirm-clear absolute top-4 right-4 text-on-surface/40 hover:text-on-surface transition-all"
+				>
+					<span class="material-symbols-outlined">close</span>
+				</button>
+				<div class="flex flex-col gap-4">
+					<div class="text-xl font-black text-on-surface tracking-tight">
+						<h4>Clear All Tasks?</h4>
+					</div>
+					<div class="flex items-center justify-between gap-2">
+						<button
+							id="clear-tasks-btn"
+							class="px-lg h-10 bg-red-600 text-white font-button rounded-lg flex items-center gap-2 hover:bg-red-700 hover:brightness-105 transition-all"
+						>
+							<span
+								class="material-symbols-outlined text-lg"
+								data-icon="delete"
+							>
+								delete
+							</span>
+							Clear Tasks
+						</button>
+						<button
+							class="close-confirm-clear px-lg h-10 bg-primary text-on-primary font-button rounded-lg flex items-center gap-2 hover:brightness-110 transition-all"
+						>
+							<span class="material-symbols-outlined text-lg">close</span>
+							Close
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>

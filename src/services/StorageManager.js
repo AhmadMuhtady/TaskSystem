@@ -19,7 +19,8 @@ export class StorageManagement {
 
 			newTask.id = task.id;
 			newTask.createdAt = task.createdAt;
-			if (newTask.EditedAt) newTask.editedAt = task.editedAt;
+			newTask.status = task.status; // ← add this
+			if (task.editedAt) newTask.editedAt = task.editedAt;
 
 			return newTask;
 		});
