@@ -5,6 +5,7 @@ export class UIManager {
 		this.isModalOpen = false;
 		this.isClearModalOpen = false;
 		this.editingTaskId = null;
+		this.filterDebounceTimer = null;
 		this._init();
 		this._applySavedTheme();
 		this._updateThemeIcon();
@@ -53,6 +54,7 @@ export class UIManager {
 		this.priorityInput = document.getElementById('priority-input');
 		this.typeInput = document.getElementById('type-input');
 		this.descriptionInput = document.getElementById('description-input');
+		this.toastContainer = document.getElementById('toast-container');
 
 		this.bottomMessage = document.getElementById('bottom-message');
 	}
@@ -74,7 +76,10 @@ export class UIManager {
 			this._emitFilters.bind(this),
 		);
 		this.sortBtn.addEventListener('change', this._emitFilters.bind(this));
-		this.searchBar.addEventListener('input', this._emitFilters.bind(this));
+		this.searchBar.addEventListener(
+			'input',
+			this._debouncedEmitFilters.bind(this),
+		);
 
 		this.showClearModalBtn.addEventListener(
 			'click',
@@ -106,11 +111,21 @@ export class UIManager {
 			this._hideForm();
 		});
 
-		BusEvent.on('task:created', (task) => this._renderTask(task));
-		BusEvent.on('task:deleted', (id) => this._removeTask(id));
-		BusEvent.on('task:rerender', (tasks) => this._rerenderAll(tasks));
+		BusEvent.on('task:rerender', (data) => {
+			const { tasks, isFiltered = false } = data;
+			this._rerenderAll(tasks, isFiltered);
+		});
 		BusEvent.on('task:editForm', (task) => this._editTask(task));
 		BusEvent.on('stats:updated', (tasks) => this.updateStats(tasks));
+		BusEvent.on('task:created', ({ title }) =>
+			this._showToast(`Task created: ${title}`, 'success'),
+		);
+		BusEvent.on('task:deleted', ({ title }) =>
+			this._showToast(`Task deleted: ${title}`, 'error'),
+		);
+		BusEvent.on('tasks:cleared', () =>
+			this._showToast('All tasks deleted', 'error'),
+		);
 		this._emitFilters();
 		BusEvent.on('task:statusUpdated', ({ id, status }) =>
 			this._updateTaskCard(id, status),
@@ -227,7 +242,7 @@ export class UIManager {
 		this._updateTaskCard(task.id, task.status);
 	}
 
-	_rerenderAll(tasks) {
+	_rerenderAll(tasks, isFiltered = false) {
 		const taskEl = document.querySelectorAll('.task');
 		taskEl.forEach((el) => el.remove());
 
@@ -236,15 +251,14 @@ export class UIManager {
 			this.bottomMessage.classList.add('hidden');
 		} else {
 			this.bottomMessage.classList.remove('hidden');
+			// Update the message based on whether we're filtering or not
+			const messageEl = this.bottomMessage.querySelector('h3');
+			if (isFiltered) {
+				messageEl.textContent = 'No tasks found';
+			} else {
+				messageEl.textContent = "Let's start adding some tasks...";
+			}
 		}
-	}
-
-	_removeTask(id) {
-		const taskEL = document.querySelector(`[data-id="${id}"]`);
-
-		if (!taskEL) return;
-
-		taskEL.remove();
 	}
 
 	_reset() {
@@ -317,12 +331,12 @@ export class UIManager {
 		if (!btn) return;
 
 		document.querySelectorAll('[data-view]').forEach((b) => {
-			b.classList.remove('bg-slate-800', 'text-primary');
-			b.classList.add('text-on-surface-variant');
+			b.classList.remove('bg-primary', 'text-on-primary');
+			b.classList.add('bg-transparent', 'text-outline');
 		});
 
-		btn.classList.add('bg-slate-800', 'text-primary');
-		btn.classList.remove('text-on-surface-variant');
+		btn.classList.add('bg-primary', 'text-on-primary');
+		btn.classList.remove('bg-transparent', 'text-outline');
 
 		if (btn.dataset.view === 'grid') {
 			this.tasksContainer.classList.add('md:grid-cols-2', 'lg:grid-cols-3');
@@ -338,6 +352,39 @@ export class UIManager {
 			sort: this.sortBtn.value,
 			search: this.searchBar.value,
 		});
+	}
+
+	_debouncedEmitFilters() {
+		clearTimeout(this.filterDebounceTimer);
+		this.filterDebounceTimer = setTimeout(() => {
+			this._emitFilters();
+		}, 100);
+	}
+
+	_showToast(message, variant = 'info') {
+		if (!this.toastContainer) return;
+
+		const toast = document.createElement('div');
+		toast.className = `max-w-xs w-full rounded-2xl border px-4 py-3 text-sm font-medium shadow-lg transition-all duration-300 transform opacity-0 translate-y-3 ${
+			variant === 'success'
+				? 'bg-emerald-600 border-emerald-500/20 text-white'
+				: variant === 'error'
+					? 'bg-red-600 border-red-500/20 text-white'
+					: 'bg-slate-900 border-slate-700 text-white'
+		}`;
+		toast.textContent = message;
+		this.toastContainer.appendChild(toast);
+
+		requestAnimationFrame(() => {
+			toast.classList.remove('opacity-0', 'translate-y-3');
+			toast.classList.add('opacity-100', 'translate-y-0');
+		});
+
+		setTimeout(() => {
+			toast.classList.remove('opacity-100');
+			toast.classList.add('opacity-0', 'translate-y-3');
+			setTimeout(() => toast.remove(), 300);
+		}, 3000);
 	}
 
 	updateStats(tasks) {

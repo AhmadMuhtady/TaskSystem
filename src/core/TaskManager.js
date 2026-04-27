@@ -12,6 +12,8 @@ export class TaskManager {
 			search: '',
 		};
 		this._initListeners();
+		// Initial render
+		this._changeFilter(this.currentFilters);
 	}
 	_initListeners() {
 		BusEvent.on('form:submit', (data) => this._newTask(data));
@@ -37,6 +39,7 @@ export class TaskManager {
 		this.tasks = this.storage.tasks;
 		this._changeFilter(this.currentFilters);
 		this.updateStats();
+		BusEvent.emit('task:created', { title: task.title });
 	}
 
 	_updateTask(data) {
@@ -102,15 +105,23 @@ export class TaskManager {
 				}
 			});
 
-		BusEvent.emit('task:rerender', filtered);
+		// Check if any filtering is actually active
+		const isFiltered =
+			type !== 'all' || status !== 'all' || sort !== 'all' || searchTerm !== '';
+
+		BusEvent.emit('task:rerender', { tasks: filtered, isFiltered });
 		this.updateStats();
 	}
 
 	_deleteTask(id) {
+		const deletedTask = this.tasks.find((t) => t.id === id);
 		const updatedTasks = this.storage.deleteTask(id);
 		this.tasks = updatedTasks;
 		this._changeFilter(this.currentFilters);
 		this.updateStats();
+		BusEvent.emit('task:deleted', {
+			title: deletedTask ? deletedTask.title : 'Task',
+		});
 	}
 
 	updateStats() {
@@ -144,7 +155,8 @@ export class TaskManager {
 	_reset() {
 		this.storage.reset();
 		this.tasks = [];
-		BusEvent.emit('task:rerender', []);
+		BusEvent.emit('task:rerender', { tasks: [], isFiltered: false });
 		this.updateStats();
+		BusEvent.emit('tasks:cleared');
 	}
 }
