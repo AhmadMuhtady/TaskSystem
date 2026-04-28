@@ -262,7 +262,15 @@
 			}
 
 			html:not(.dark) .task {
-				background-color: rgba(236, 239, 247, 0.92);
+				background-color: rgba(244, 245, 251, 0.8);
+				border-color: rgba(148, 152, 172, 0.18);
+			}
+			html:not(.dark) .all-body {
+				background-color: rgba(241, 236, 247, 0.92);
+				border-color: rgba(148, 152, 172, 0.18);
+			}
+			html:not(.dark) #form {
+				background-color: rgba(241, 236, 247, 0.92);
 				border-color: rgba(148, 152, 172, 0.18);
 			}
 
@@ -387,7 +395,7 @@
 			</header>
 			<!-- Scrollable Canvas -->
 			<div class="flex-1 overflow-y-auto custom-scrollbar p-lg">
-				<div class="max-w-[1200px] mx-auto space-y-xl">
+				<div class="all-body max-w-[1200px] mx-auto space-y-xl">
 					<!-- Dashboard Header -->
 					<div
 						class="flex flex-col md:flex-row md:items-end justify-between gap-md"
@@ -597,7 +605,8 @@
 								/>
 							</div>
 							<div class="space-y-xs">
-								<label class="text-label-caps uppercase text-white px-1"
+								<label
+									class="text-sm text-on-surface text-label-caps uppercase px-1"
 									>Due Date</label
 								>
 								<input
